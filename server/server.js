@@ -40,7 +40,30 @@ app.post('/', async (req, res) => {
     });
 
   } catch (error) {
-    // console.error(process.env.OPENAI_API_KEY,"error")
+    console.error(process.env.OPENAI_API_KEY,"error");
+    res.status(500).send(error || 'Something went wrong');
+  }
+})
+
+app.post('/img', async (req, res) => {
+  try {
+    const prompt = "pintura colorida" + req.body.prompt;
+
+    const response = await openai.createImage({
+      prompt: prompt,
+      n: 1,
+      size: "512x512"
+    });
+    console.log(response.data.data);
+    const image_url = response.data.data[0].url;
+    console.log(image_url);
+    res.status(200).send({
+      url: image_url
+    });
+
+  } catch (error) {
+  console.error(error);
+    console.error(process.env.OPENAI_API_KEY,"error");
     res.status(500).send(error || 'Something went wrong');
   }
 })
@@ -49,4 +72,5 @@ app.use(
   cors({origin: 'null'})
 );
 
-app.listen(5000, () => console.log('AI server started on http://localhost:5000'))
+var server = app.listen(5000, () => console.log('AI server started on http://localhost:5000'))
+server.timeout = 60000;
