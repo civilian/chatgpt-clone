@@ -23,6 +23,9 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
   try {
+    if (req.body.token != process.env.TOKEN){
+        throw 'Invalid token';
+    }
     const prompt = req.body.prompt;
 
     const response = await openai.createCompletion({
@@ -47,14 +50,16 @@ app.post('/', async (req, res) => {
 
 app.post('/img', async (req, res) => {
   try {
-    const prompt = "pintura colorida" + req.body.prompt;
+    if (req.body.token != process.env.TOKEN){
+        throw 'Invalid token';
+    }
+    const prompt = "pintura colorida " + req.body.prompt;
 
     const response = await openai.createImage({
       prompt: prompt,
       n: 1,
       size: "512x512"
     });
-    console.log(response.data.data);
     const image_url = response.data.data[0].url;
     console.log(image_url);
     res.status(200).send({
