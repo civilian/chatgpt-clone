@@ -23,6 +23,7 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
   try {
+    console.log();
     if (req.body.token != process.env.TOKEN){
         throw 'Invalid token';
     }
@@ -36,6 +37,7 @@ app.post('/', async (req, res) => {
       top_p: 1, // alternative to sampling with temperature, called nucleus sampling
       frequency_penalty: 0.5, // Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
       presence_penalty: 0, // Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
+      user: String(req.ip), // the user
     });
 
     res.status(200).send({
@@ -43,7 +45,7 @@ app.post('/', async (req, res) => {
     });
 
   } catch (error) {
-    console.error(process.env.OPENAI_API_KEY,"error");
+    console.error("TOKEN:", process.env.TOKEN, "API_KEY", process.env.OPENAI_API_KEY,"error");
     res.status(500).send(error || 'Something went wrong');
   }
 })
@@ -53,12 +55,14 @@ app.post('/img', async (req, res) => {
     if (req.body.token != process.env.TOKEN){
         throw 'Invalid token';
     }
-    const prompt = "pintura colorida " + req.body.prompt;
+    const prompt = req.body.prompt;
 
+    console.log(req.ip);
     const response = await openai.createImage({
       prompt: prompt,
       n: 1,
-      size: "512x512"
+      size: "512x512",
+      user: String(req.ip), // the user
     });
     const image_url = response.data.data[0].url;
     console.log(image_url);
@@ -68,7 +72,7 @@ app.post('/img', async (req, res) => {
 
   } catch (error) {
   console.error(error);
-    console.error(process.env.OPENAI_API_KEY,"error");
+    console.error("TOKEN:", process.env.TOKEN, "API_KEY", process.env.OPENAI_API_KEY,"error");
     res.status(500).send(error || 'Something went wrong');
   }
 })
