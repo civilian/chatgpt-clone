@@ -27,7 +27,7 @@ app.post('/', async (req, res) => {
     if (req.body.token != process.env.TOKEN){
         throw 'Invalid token';
     }
-    const prompt = req.body.prompt;
+    const prompt = await req.body.prompt;
     console.log(prompt);
     console.log(String(req.ip));
     const response = await openai.createCompletion({
@@ -52,28 +52,32 @@ app.post('/', async (req, res) => {
 })
 
 app.post('/img', async (req, res) => {
+  var err = "";
   try {
     if (req.body.token != process.env.TOKEN){
         throw 'Invalid token';
     }
-    const prompt = req.body.prompt;
-    console.log(prompt);
+    const prompt_ = req.body.prompt;
+    console.log(prompt_);
     const response = await openai.createImage({
-      prompt: prompt,
-      n: 1,
-      size: "512x512",
-//      user: String(req.ip), // the user
+            prompt: prompt_,
+            n: 1,
+            size: "512x512",
+        },{
+            validateStatus: function (status) {
+                return status < 500; // Resolve only if the status code is less than 500
+            }
     });
-    const image_url = response.data.data[0].url;
-    console.log(image_url);
+    err = response.request.error
     res.status(200).send({
-      url: image_url
+      url: response.data.data[0].url
     });
 
   } catch (error) {
-  console.error(error);
+    console.error(err);
+    console.error(error);
     console.error("TOKEN:", process.env.TOKEN, "API_KEY", process.env.OPENAI_API_KEY,"error");
-    res.status(500).send(error || 'Something went wrong');
+    res.status(500).send(err || error || 'Something went wrong');
   }
 })
 
