@@ -28,8 +28,7 @@ app.post('/', async (req, res) => {
         throw 'Invalid token';
     }
     const prompt = await req.body.prompt;
-    console.log(prompt);
-    console.log(String(req.ip));
+    console.log("/", "ip=", req.ip, "prompt=", prompt);
     const response = await openai.createCompletion({
       model: "text-davinci-003",
       prompt: `${prompt}`,
@@ -52,17 +51,19 @@ app.post('/', async (req, res) => {
 })
 
 app.post('/img', async (req, res) => {
+
   var err = "";
   try {
     if (req.body.token != process.env.TOKEN){
         throw 'Invalid token';
     }
     const prompt_ = req.body.prompt;
-    console.log(prompt_);
+    console.log("img", "ip=", req.ip, "prompt=", prompt_);
     const response = await openai.createImage({
             prompt: prompt_,
             n: 1,
             size: "512x512",
+            user: String(req.ip),
         },{
             validateStatus: function (status) {
                 return status < 500; // Resolve only if the status code is less than 500
