@@ -27,7 +27,7 @@ app.post('/', async (req, res) => {
     if (req.body.token != process.env.TOKEN){
         throw 'Invalid token';
     }
-    const prompt = await req.body.prompt;
+    let prompt = await req.body.prompt;
     console.log("/", "ip=", req.ip, "prompt=", prompt);
     const response = await openai.createCompletion({
       model: "text-davinci-003",
@@ -57,7 +57,8 @@ app.post('/img', async (req, res) => {
     if (req.body.token != process.env.TOKEN){
         throw 'Invalid token';
     }
-    const prompt_ = req.body.prompt;
+    let prompt_ = req.body.prompt;
+    prompt_ = prompt_.slice(0, 400);
     console.log("img", "ip=", req.ip, "prompt=", prompt_);
     const response = await openai.createImage({
             prompt: prompt_,
